@@ -1,7 +1,7 @@
 "use client";
 import { deleteJob, resumeJob } from "@/api/jobApi";
 import { DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Button, Space } from "antd";
+import { Button, Modal, Space, message } from "antd";
 import { useState } from "react";
 
 interface ActionButtonsProps {
@@ -17,25 +17,33 @@ export function ActionButtons(props: ActionButtonsProps) {
     try {
       await resumeJob(props.jobID);
       props.refetch();
-      // TODO: refetch table or show notification
+      message.success("Job resumed successfully!");
     } catch (error) {
-      console.error("Error resuming job:", error);
+      message.error("Failed to resume job");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    setLoading(true);
-    try {
-      await deleteJob(props.jobID);
-      props.refetch();
-      // TODO: refetch table or show notification
-    } catch (error) {
-      console.error("Error deleting job:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleDelete = () => {
+    Modal.confirm({
+      title: "Confirm Popup",
+      content: "Are you sure to delete this job?",
+      okText: "Confirm",
+      cancelText: "Cancel",
+      onOk: async () => {
+        setLoading(true);
+        try {
+          await deleteJob(props.jobID);
+          props.refetch();
+          message.success("Job deleted successfully!");
+        } catch (error) {
+          message.error("Failed to delete job");
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   return (
@@ -45,14 +53,14 @@ export function ActionButtons(props: ActionButtonsProps) {
         icon={<ReloadOutlined />}
         loading={loading}
         onClick={handleResume}
-      ></Button>
+      />
       <Button
         type="primary"
         icon={<DeleteOutlined />}
         danger
         loading={loading}
         onClick={handleDelete}
-      ></Button>
+      />
     </Space>
   );
 }

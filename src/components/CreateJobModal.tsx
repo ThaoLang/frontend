@@ -3,7 +3,7 @@
 import { Button, InputNumber, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import { createJob } from "../api/jobApi"; // Import hàm tạo job từ API
+import { createJob } from "../api/jobApi";
 
 interface CreateJobModalType {
   isOpen: boolean;
@@ -18,7 +18,7 @@ export default function CreateJobModal(props: CreateJobModalType) {
     learningRate: false,
     epoch: false,
     batch: false,
-    duplicate: false, // Thêm trạng thái trùng lặp
+    duplicate: false,
   });
 
   const handleCreate = async () => {
@@ -26,7 +26,7 @@ export default function CreateJobModal(props: CreateJobModalType) {
       learningRate: learningRate === null,
       epoch: epoch === null,
       batch: batch === null,
-      duplicate: false, // Reset lỗi duplicate
+      duplicate: false,
     };
 
     setErrors(newErrors);
@@ -34,7 +34,6 @@ export default function CreateJobModal(props: CreateJobModalType) {
     const hasError = Object.values(newErrors).some((e) => e);
     if (!hasError) {
       try {
-        // Gọi API tạo job
         const response = await createJob({
           learningRate: learningRate!,
           epoch: epoch!,
@@ -42,14 +41,11 @@ export default function CreateJobModal(props: CreateJobModalType) {
         });
 
         if (response.error) {
-          // Nếu backend báo lỗi (ví dụ trùng thông tin)
           setErrors((prevErrors) => ({
             ...prevErrors,
             duplicate: true,
           }));
         } else {
-          // Thành công
-          console.log("Job created successfully:", response);
           props.onClose(false);
         }
       } catch (error) {
@@ -57,7 +53,6 @@ export default function CreateJobModal(props: CreateJobModalType) {
           ...prevErrors,
           duplicate: true,
         }));
-        // console.error("Failed to create job:", error);
       }
     }
   };
@@ -85,7 +80,6 @@ export default function CreateJobModal(props: CreateJobModalType) {
       onCancel={() => props.onClose(false)}
       centered
     >
-      {/* Custom Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Create new experiment</h2>
         <button

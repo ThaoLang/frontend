@@ -125,7 +125,7 @@ export default function CompletedJobsTable(props: CompletedJobsTableProps) {
         new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
       render: (text) => {
         const date = new Date(text);
-        return date.toLocaleString(); // Formats it to the local date and time
+        return date.toLocaleString();
       },
     },
     {
@@ -162,7 +162,6 @@ export default function CompletedJobsTable(props: CompletedJobsTableProps) {
         dataSource={props.data}
         bordered
         pagination={{ pageSize: 5 }}
-        className="[&_.ant-table-thead>tr>th]:bg-gray-100"
       />
     </div>
   );

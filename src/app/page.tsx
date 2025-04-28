@@ -71,7 +71,6 @@ export default function Home() {
         <CreateJobModal isOpen={openCreateModal} onClose={setOpenCreateModal} />
       </div>
       <div className="flex flex-1 gap-4 my-10 overflow-hidden ">
-        {/* Left column */}
         <div className=" flex flex-col w-4/5 space-y-2">
           <div className="text-2xl font-semibold text-center uppercase">
             Completed Jobs
@@ -80,8 +79,6 @@ export default function Home() {
             <CompletedJobsTable data={completedJobs} refetch={refetch} />
           </div>
         </div>
-
-        {/* Right column */}
         <div className="w-1/5 flex flex-col space-y-2">
           <div className="text-2xl font-semibold text-center uppercase ">
             Running Jobs

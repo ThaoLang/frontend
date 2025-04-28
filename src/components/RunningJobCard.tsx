@@ -14,7 +14,7 @@ export default function RunningJobCard(props: RunningJobCardProps) {
       className="shadow-md border-solid border-gray-300"
       styles={{
         body: {
-          paddingTop: 0, // hoặc 4, tuỳ bạn
+          paddingTop: 0,
           paddingBottom: 12,
           paddingLeft: 16,
           paddingRight: 16,
@@ -29,7 +29,6 @@ export default function RunningJobCard(props: RunningJobCardProps) {
         className="mb-4"
       />
 
-      {/* Epoch + LR */}
       <div className="flex justify-between text-sm -600 mb-2">
         <div className="flex space-x-1">
           <span className="font-medium">Epoch:</span>
@@ -41,7 +40,6 @@ export default function RunningJobCard(props: RunningJobCardProps) {
         </div>
       </div>
 
-      {/* Accuracy + Loss */}
       <div className="flex justify-between mt-2 text-sm">
         <div className="flex items-center space-x-2">
           <FaChartLine color="green" size={16} />
