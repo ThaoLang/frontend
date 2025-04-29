@@ -1,22 +1,28 @@
 "use client";
 import { deleteJob, resumeJob } from "@/api/jobApi";
 import { DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button, Modal, Space, message } from "antd";
 import { useState } from "react";
 
 interface ActionButtonsProps {
   jobID: string;
-  refetch: () => void;
 }
 
 export function ActionButtons(props: ActionButtonsProps) {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleResume = async () => {
     setLoading(true);
     try {
       await resumeJob(props.jobID);
-      props.refetch();
+      queryClient.refetchQueries({ queryKey: ["completedJobs"] });
+      queryClient.refetchQueries({ queryKey: ["jobSummary"] });
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ["runningJobs"] });
+      }, 1000);
+
       message.success("Job resumed successfully!");
     } catch (error) {
       message.error("Failed to resume job");
@@ -35,7 +41,9 @@ export function ActionButtons(props: ActionButtonsProps) {
         setLoading(true);
         try {
           await deleteJob(props.jobID);
-          props.refetch();
+          queryClient.refetchQueries({ queryKey: ["completedJobs"] });
+          queryClient.refetchQueries({ queryKey: ["jobSummary"] });
+
           message.success("Job deleted successfully!");
         } catch (error) {
           message.error("Failed to delete job");

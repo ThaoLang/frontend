@@ -7,7 +7,6 @@ import { ActionButtons } from "./ActionButtons";
 
 interface CompletedJobsTableProps {
   data: CompletedJobType[];
-  refetch: () => void;
 }
 
 export default function CompletedJobsTable(props: CompletedJobsTableProps) {
@@ -149,9 +148,7 @@ export default function CompletedJobsTable(props: CompletedJobsTableProps) {
     {
       title: "Actions",
       key: "actions",
-      render: (_, record) => (
-        <ActionButtons jobID={record.jobID} refetch={props.refetch} />
-      ),
+      render: (_, record) => <ActionButtons jobID={record.jobID} />,
     },
   ];
 

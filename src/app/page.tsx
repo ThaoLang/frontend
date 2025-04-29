@@ -7,17 +7,48 @@ import { useJobSummary } from "@/hooks/useJobSummary";
 import { useRunningJobs } from "@/hooks/useRunningJobs";
 import { RunningJobType } from "@/types/job";
 import "@ant-design/v5-patch-for-react-19";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BsArrowRepeat } from "react-icons/bs";
 import { GoInbox } from "react-icons/go";
 import { MdDone, MdEmojiEvents, MdError } from "react-icons/md";
 export default function Home() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
-  const { data: summary, isLoading: summaryLoading } = useJobSummary();
-  const { data: runningJobs = [] } = useRunningJobs();
-  const { data: completedJobs = [], isLoading, refetch } = useCompletedJobs();
+  const { data: summary } = useJobSummary();
+  const { data: completedJobs = [] } = useCompletedJobs();
+  const { data: runningJobs = [], refetch: refetchRunningJobs } =
+    useRunningJobs();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!runningJobs) return;
+
+    let prevCount = runningJobs.length;
+
+    const interval = setInterval(async () => {
+      const { data } = await refetchRunningJobs();
+
+      if (!data) return;
+      const currentCount = data.length;
+
+      if (currentCount < prevCount) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["completedJobs"] }),
+          queryClient.invalidateQueries({ queryKey: ["jobSummary"] }),
+        ]);
+      }
+
+      if (currentCount === 0) {
+        clearInterval(interval);
+      }
+
+      prevCount = currentCount;
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [runningJobs, refetchRunningJobs, queryClient]);
 
   return (
     <div className="m-4 flex flex-col h-screen">
@@ -28,7 +59,7 @@ export default function Home() {
           </div>
           <div className="pl-2 font-semibold">
             <div className="text-lg">Running</div>
-            <div>{(!summaryLoading && summary?.runningCount) ?? 0}</div>
+            <div>{summary?.runningCount ?? 0}</div>
           </div>
         </div>
         <div className="flex items-center  bg-lime-500 rounded-md shadow-xl">
@@ -37,7 +68,7 @@ export default function Home() {
           </div>
           <div className="pl-2 font-semibold">
             <div className="text-lg">Succeeded</div>
-            <div>{(!summaryLoading && summary?.successCount) ?? 0}</div>
+            <div>{summary?.successCount ?? 0}</div>
           </div>
         </div>
         <div className="flex items-center  bg-red-500 rounded-md shadow-xl">
@@ -46,7 +77,7 @@ export default function Home() {
           </div>
           <div className="pl-2 font-semibold">
             <div className="text-lg">Failed</div>
-            <div>{(!summaryLoading && summary?.failedCount) ?? 0}</div>
+            <div>{summary?.failedCount ?? 0}</div>
           </div>
         </div>
         <div className="flex items-center  bg-yellow-400 rounded-md shadow-xl">
@@ -55,7 +86,7 @@ export default function Home() {
           </div>
           <div className="pl-2 font-semibold">
             <div className="text-lg">Best Accuracy</div>
-            <div>{(!summaryLoading && summary?.bestAccuracy) ?? 0}</div>
+            <div>{summary?.bestAccuracy ?? 0}%</div>
           </div>
         </div>
       </div>
@@ -76,7 +107,7 @@ export default function Home() {
             Completed Jobs
           </div>
           <div className="flex-1 overflow-y-auto  rounded-xl bg-white pb-20 ">
-            <CompletedJobsTable data={completedJobs} refetch={refetch} />
+            <CompletedJobsTable data={completedJobs} />
           </div>
         </div>
         <div className="w-1/5 flex flex-col space-y-2">

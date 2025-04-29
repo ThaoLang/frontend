@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Button, InputNumber, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
@@ -20,6 +21,7 @@ export default function CreateJobModal(props: CreateJobModalType) {
     batch: false,
     duplicate: false,
   });
+  const queryClient = useQueryClient();
 
   const handleCreate = async () => {
     const newErrors = {
@@ -39,6 +41,10 @@ export default function CreateJobModal(props: CreateJobModalType) {
           epoch: epoch!,
           batchSize: batch!,
         });
+        queryClient.refetchQueries({ queryKey: ["jobSummary"] });
+        setTimeout(() => {
+          queryClient.refetchQueries({ queryKey: ["runningJobs"] });
+        }, 1000);
 
         if (response.error) {
           setErrors((prevErrors) => ({
